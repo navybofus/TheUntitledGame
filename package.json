@@ -1,0 +1,25 @@
+{
+    "name": "tacticsuntiledgame",
+    "version": "0.1.0",
+    "main": "server.js",
+    "keywords": [],
+    "author": "Chris Ford",
+    "license": "ISC",
+    "description": "A minimalistic tactics game",
+    "dependencies": {
+        "express": "^4.21.2"
+    },
+    "scripts": {
+        "start": "node server.js"
+    },
+    "pkg": {
+        "scripts": "server.js",
+        "assets": [
+            "index.html",
+            "css/bootstrap.css",
+            "js/**/*",
+            "images/**/*",
+            "game.js"
+        ]
+    }
+}
