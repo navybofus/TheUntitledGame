@@ -59,8 +59,8 @@ class GameScene extends Phaser.Scene {
         // -------------------------
         // Grid Settings
         // -------------------------
-        const gridCols = 10;
-        const gridRows = 6;
+        const gridCols = 12;
+        const gridRows = 8;
         const gridSize = 64; // Size of each cell (in pixels)
         const gridX = (gameWidth - gridCols * gridSize) / 2;
         const gridY = (gameHeight - gridRows * gridSize) / 2;
@@ -69,9 +69,9 @@ class GameScene extends Phaser.Scene {
         // Character Class Definitions
         // -------------------------
         const classes = {
-            Warrior: { color: 0xff0000, statResource: "Rage", moveRange: 3, combatRange: 1 },
-            Mage: { color: 0x0000ff, statResource: "Mana", moveRange: 3, combatRange: 3 },
-            Archer: { color: 0x00ff00, statResource: "Mana", moveRange: 4, combatRange: 3 }
+            Warrior: { color: 0xff0000, textColor: '#FFFFFF', statResource: "Rage", moveRange: 3, combatRange: 1 },
+            Mage: { color: 0x0000ff, textColor: '#FFFF00', statResource: "Mana", moveRange: 3, combatRange: 3 },
+            Archer: { color: 0x00ff00, textColor: '#777777', statResource: "Mana", moveRange: 4, combatRange: 3 }
         };
 
         // -------------------------
@@ -149,7 +149,7 @@ class GameScene extends Phaser.Scene {
                     gridY + row * gridSize + gridSize / 2,
                     gridSize,
                     gridSize,
-                    0x888888,
+                    0x67b846,  // '#67b846'
                     0.3
                 ).setStrokeStyle(2, 0xffffff);
                 this.gridCells.push({ col, row, cell });
@@ -160,7 +160,7 @@ class GameScene extends Phaser.Scene {
         // Place Obstacles (Water & Rock)
         // -------------------------
         this.obstacles = [];
-        const obstacleCount = 8;
+        const obstacleCount = 14;
         for (let i = 0; i < obstacleCount; i++) {
             let pos = getRandomPositionGeneric();
             let type = Phaser.Math.Between(0, 1) === 0 ? "water" : "rock";
@@ -380,6 +380,9 @@ class GameScene extends Phaser.Scene {
                 gridX + newCol * gridSize + gridSize / 2,
                 gridY + newRow * gridSize + gridSize / 2
             );
+            if (character.tokenLabel) {
+                character.tokenLabel.setPosition(character.token.x, character.token.y);
+            }
             if (character.halo) {
                 character.halo.setPosition(character.token.x, character.token.y);
             }
@@ -394,7 +397,7 @@ class GameScene extends Phaser.Scene {
         // -------------------------
         this.tokens = [];
         // Player 1 tokens: allowed columns 0–3; Player 2 tokens: allowed columns 6–9.
-        const playerRanges = { player1: { min: 0, max: 3 }, player2: { min: 6, max: 9 } };
+        const playerRanges = { player1: { min: 0, max: 3 }, player2: { min: 8, max: 11 } };
         Object.keys(playerRanges).forEach(player => {
             const { min, max } = playerRanges[player];
             const borderColor = playerColors[player];
@@ -408,7 +411,13 @@ class GameScene extends Phaser.Scene {
                     defending: false
                 };
                 let token = this.add.circle(pos.x, pos.y, 20, classes[className].color).setInteractive();
-                let character = { token, col: pos.col, row: pos.row, player, className, stats: characterStats, halo: null };
+                // Create the token label (first letter of class, capitalized)
+                let tokenLabel = this.add.text(pos.x, pos.y, className.charAt(0).toUpperCase(), {
+                    fontSize: '32px',
+                    fontStyle: 'bold',
+                    color: classes[className].textColor
+                }).setOrigin(0.5);
+                let character = { token, tokenLabel, col: pos.col, row: pos.row, player, className, stats: characterStats, halo: null };
                 this.tokens.push(character);
                 occupiedPositions.set(`${pos.col}-${pos.row}`, true);
                 let cell = this.gridCells.find(c => c.col === pos.col && c.row === pos.row);
@@ -665,6 +674,9 @@ class GameScene extends Phaser.Scene {
             let cell = this.gridCells.find(c => c.col === character.col && c.row === character.row);
             if (cell) cell.cell.setStrokeStyle(2, 0xffffff);
             character.token.destroy();
+            if (character.tokenLabel) {
+                character.tokenLabel.destroy();
+            }
             if (character.halo) {
                 character.halo.destroy();
             }
